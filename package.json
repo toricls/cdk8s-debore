@@ -19,6 +19,10 @@
     "bump": "standard-version",
     "build": "yarn compile && yarn test && yarn run package"
   },
+  "dependencies": {
+    "cdk8s": "^0.20.0",
+    "constructs": "2.0.1"
+  },
   "devDependencies": {
     "jsii": "^1.5.0",
     "jsii-diff": "^1.5.0",
