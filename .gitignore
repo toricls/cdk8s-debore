@@ -107,3 +107,6 @@ tsconfig.json
 .jsii
 *.d.ts
 *.js
+
+# VSCode - Remote Containers
+.devcontainer
