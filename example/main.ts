@@ -21,6 +21,13 @@ class MyWebApp extends Chart {
         };
 
         new WebApp(this, 'webapp', opts);
+
+        /* 
+        // The `opts` above is using full option and a minimal option could be something like this :)
+        const minimalOpts = {
+            image: 'nginx'
+        }
+        */
     }
 }
 
