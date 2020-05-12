@@ -1,0 +1,3 @@
+imports:
+  - k8s@1.16.0
+  # In addition to the above, this example has imported "autoscaling/v2beta2/HorizontalPodAutoscaler" by executing `cdk8s import k8s --language typescript --include io.k8s.api.autoscaling.v2beta2.HorizontalPodAutoscaler`
