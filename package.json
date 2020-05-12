@@ -1,14 +1,14 @@
 {
-  "name": "jsii-library-template",
-  "version": "1.1.0",
-  "description": "Template for jsii libraries",
+  "name": "cdk8s-simple-webapp",
+  "version": "0.0.1",
+  "description": "A library for describing simple webapps on Kubernetes",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eladb/jsii-library-template.git"
+    "url": "https://github.com/toricls/cdk8s-simple-webapp.git"
   },
-  "author": "Elad Ben-Israel <benisrae@amazon.com>",
+  "author": "Tori <yshr@amazon.com>",
   "license": "Apache-2.0",
   "scripts": {
     "compile": "jsii",
@@ -32,19 +32,19 @@
     "versionFormat": "full",
     "targets": {
       "java": {
-        "package": "com.github.eladb.jsiilibrarytemplate",
+        "package": "com.github.toricls.cdk8ssimplewebapp",
         "maven": {
-          "groupId": "com.github.eladb",
-          "artifactId": "jsii-library-template"
+          "groupId": "com.github.toricls",
+          "artifactId": "cdk8s-simple-webapp"
         }
       },
       "python": {
-        "distName": "jsii-library-template",
-        "module": "jsii_library_template"
+        "distName": "cdk8s-simple-webapp",
+        "module": "cdk8s_simple_webapp"
       },
       "dotnet": {
-        "namespace": "Eladb.JsiiLibraryTemplate",
-        "packageId": "Elad.JsiiLibraryTemplate"
+        "namespace": "Toricls.Cdk8sSimpleWebapp",
+        "packageId": "Tori.Cdk8sSimpleWebapp"
       }
     }
   }
