@@ -10,7 +10,7 @@ Run your apps on Kubernetes cluster without bored YAMLing, powered by the [cdk8s
 new DeboredApp(this, 'webapp', {
   image: 'your-image:latest',
   autoScale: true,
-  ingress: true
+  ingress: IngressType.NGINX_INGRESS
 });
 ```
 
