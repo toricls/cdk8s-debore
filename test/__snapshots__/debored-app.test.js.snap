@@ -110,7 +110,151 @@ Array [
 ]
 `;
 
-exports[`"ingress" installs an nginx-based ingress controller 1`] = `
+exports[`"defaultReplicas" can be used to control the number of replicas 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "replicas": 10,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "LoadBalancer",
+    },
+  },
+]
+`;
+
+exports[`"ingress == CLUSTER_IP" uses a ClusterIP service 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "replicas": 1,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "ClusterIP",
+    },
+  },
+]
+`;
+
+exports[`"ingress == NGINX_INGRESS" uses an nginx ingress 1`] = `
 Array [
   Object {
     "apiVersion": "apps/v1",
@@ -266,78 +410,6 @@ Array [
     "metadata": Object {
       "name": "test-myapp-exposable-service-568386d8",
       "namespace": "hello.namespace",
-    },
-    "spec": Object {
-      "ports": Array [
-        Object {
-          "port": 80,
-          "targetPort": 8080,
-        },
-      ],
-      "selector": Object {
-        "app": "testmyappD19744AC",
-      },
-      "type": "LoadBalancer",
-    },
-  },
-]
-`;
-
-exports[`"replicas" can be used to control the number of replicas 1`] = `
-Array [
-  Object {
-    "apiVersion": "apps/v1",
-    "kind": "Deployment",
-    "metadata": Object {
-      "name": "test-myapp-deployment-deployment-c1cb76c8",
-      "namespace": "default",
-    },
-    "spec": Object {
-      "replicas": 10,
-      "selector": Object {
-        "matchLabels": Object {
-          "app": "testmyappD19744AC",
-        },
-      },
-      "template": Object {
-        "metadata": Object {
-          "labels": Object {
-            "app": "testmyappD19744AC",
-          },
-        },
-        "spec": Object {
-          "containers": Array [
-            Object {
-              "image": "myimage",
-              "imagePullPolicy": "Always",
-              "name": "app",
-              "ports": Array [
-                Object {
-                  "containerPort": 8080,
-                },
-              ],
-              "resources": Object {
-                "limits": Object {
-                  "cpu": "400m",
-                  "memory": "512Mi",
-                },
-                "requests": Object {
-                  "cpu": "200m",
-                  "memory": "256Mi",
-                },
-              },
-            },
-          ],
-        },
-      },
-    },
-  },
-  Object {
-    "apiVersion": "v1",
-    "kind": "Service",
-    "metadata": Object {
-      "name": "test-myapp-exposable-service-568386d8",
-      "namespace": "default",
     },
     "spec": Object {
       "ports": Array [

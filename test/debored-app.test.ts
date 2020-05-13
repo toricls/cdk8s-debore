@@ -1,5 +1,5 @@
 import { Testing, Chart } from 'cdk8s';
-import { DeboredApp } from '../lib';
+import { DeboredApp, IngressType } from '../lib';
 
 test('minimal configuration', () => {
   // GIVEN
@@ -45,7 +45,7 @@ test('"autoScale" will define pod autoscaling with sensible configuration', () =
   expect(Testing.synth(chart)).toMatchSnapshot();
 });
 
-test('"replicas" can be used to control the number of replicas', () => {
+test('"defaultReplicas" can be used to control the number of replicas', () => {
   // GIVEN
   const app = Testing.app();
   const chart = new Chart(app, 'test');
@@ -60,7 +60,7 @@ test('"replicas" can be used to control the number of replicas', () => {
   expect(Testing.synth(chart)).toMatchSnapshot();
 });
 
-test('"ingress" installs an nginx-based ingress controller', () => {
+test('"ingress == CLUSTER_IP" uses a ClusterIP service', () => {
   // GIVEN
   const app = Testing.app();
   const chart = new Chart(app, 'test');
@@ -68,7 +68,22 @@ test('"ingress" installs an nginx-based ingress controller', () => {
   // WHEN
   new DeboredApp(chart, 'myapp', {
     image: 'myimage',
-    ingress: true,
+    ingress: IngressType.CLUSTER_IP,
+  });
+
+  // THEN
+  expect(Testing.synth(chart)).toMatchSnapshot();
+});
+
+test('"ingress == NGINX_INGRESS" uses an nginx ingress', () => {
+  // GIVEN
+  const app = Testing.app();
+  const chart = new Chart(app, 'test');
+  
+  // WHEN
+  new DeboredApp(chart, 'myapp', {
+    image: 'myimage',
+    ingress: IngressType.NGINX_INGRESS,
   });
 
   // THEN

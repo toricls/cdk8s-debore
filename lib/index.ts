@@ -43,16 +43,31 @@ export interface DeboredOptions {
   readonly autoScale?: boolean;
 
   /**
-   * Whether use Nginx ingress or not.
-   * @default false
+   * The type of ingress.
+   * @default IngressType.SERVICE_LOADBALANCER
    */
-  readonly ingress?: boolean;
+  readonly ingress?: IngressType;
 
   /**
    * Resources requests for the web app.
    * @default - Requests = { CPU = 200m, Mem = 256Mi }, Limits = { CPU = 400m, Mem = 512Mi }
    */
   readonly resources?: ResourceRequirements;
+}
+
+export enum IngressType {
+  SERVICE_LOADBALANCER,
+  CLUSTER_IP,
+  NGINX_INGRESS
+}
+
+function serviceTypeFromIngressType(ingressType: IngressType): string {
+  switch (ingressType) {
+    case IngressType.SERVICE_LOADBALANCER: return 'LoadBalancer';
+    case IngressType.CLUSTER_IP: return 'ClusterIP';
+    case IngressType.NGINX_INGRESS: return 'ClusterIP';
+    default: throw new Error('unsupported ingress type');
+  }
 }
 
 export interface ResourceRequirements {
@@ -95,7 +110,7 @@ export class DeboredApp extends Construct {
       deployment: deployment,
       port: opts.port ?? 80,
       selector: selector,
-      useIngress: opts.ingress ?? false,
+      ingressType: opts.ingress ?? IngressType.SERVICE_LOADBALANCER,
     });
   }
 }
@@ -191,7 +206,7 @@ interface ExposableOptions {
   readonly deployment: DeboredDeployment,
   readonly port: number,
   readonly selector: { [key: string]: string }
-  readonly useIngress: boolean
+  readonly ingressType: IngressType
 }
 
 class Exposable extends Construct {
@@ -203,12 +218,13 @@ class Exposable extends Construct {
         namespace: opts.deployment.namespace,
       },
       spec: {
-        type: opts.useIngress ? 'ClusterIP' : 'LoadBalancer',
+        type: serviceTypeFromIngressType(opts.ingressType),
         ports: [ { port: opts.port, targetPort: k8s.IntOrString.fromNumber(opts.deployment.containerPort) } ],
         selector: opts.selector,
       },
     });
-    if (opts.useIngress) {
+    // Add a Kubernetes Ingress resource if it's needed
+    if (opts.ingressType == IngressType.NGINX_INGRESS) {
       new k8s.Ingress(this, 'ingress', {
         metadata: {
           namespace: opts.deployment.namespace,
