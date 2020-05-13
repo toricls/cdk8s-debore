@@ -43,16 +43,23 @@ export interface DeboredOptions {
   readonly autoScale?: boolean;
 
   /**
-   * Whether use Nginx ingress or not.
-   * @default false
+   * The type of ingress.
+   * @default IngressType.SERVICE_LOADBALANCER
    */
-  readonly ingress?: boolean;
+  readonly ingress?: IngressType;
 
   /**
    * Resources requests for the web app.
    * @default - Requests = { CPU = 200m, Mem = 256Mi }, Limits = { CPU = 400m, Mem = 512Mi }
    */
   readonly resources?: ResourceRequirements;
+}
+
+// TODO: Need different approach if we support multiple ingress controllers in the future
+export enum IngressType {
+  SERVICE_LOADBALANCER = 'LoadBalancer',
+  CLUSTER_IP = 'ClusterIP',
+  NGINX_INGRESS = 'nginx'
 }
 
 export interface ResourceRequirements {
@@ -95,7 +102,7 @@ export class DeboredApp extends Construct {
       deployment: deployment,
       port: opts.port ?? 80,
       selector: selector,
-      useIngress: opts.ingress ?? false,
+      ingressType: opts.ingress ?? IngressType.SERVICE_LOADBALANCER,
     });
   }
 }
@@ -191,29 +198,30 @@ interface ExposableOptions {
   readonly deployment: DeboredDeployment,
   readonly port: number,
   readonly selector: { [key: string]: string }
-  readonly useIngress: boolean
+  readonly ingressType: IngressType
 }
 
 class Exposable extends Construct {
   constructor(scope: Construct, name: string, opts: ExposableOptions) {
     super(scope, name);
 
+    const useNginx = opts.ingressType == IngressType.NGINX_INGRESS;
     const svc = new k8s.Service(this, 'service', {
       metadata: {
         namespace: opts.deployment.namespace,
       },
       spec: {
-        type: opts.useIngress ? 'ClusterIP' : 'LoadBalancer',
+        type: useNginx ? 'ClusterIP' : opts.ingressType,
         ports: [ { port: opts.port, targetPort: k8s.IntOrString.fromNumber(opts.deployment.containerPort) } ],
         selector: opts.selector,
       },
     });
-    if (opts.useIngress) {
+    if (useNginx) {
       new k8s.Ingress(this, 'ingress', {
         metadata: {
           namespace: opts.deployment.namespace,
           annotations: {
-            'kubernetes.io/ingress.class': 'nginx',
+            'kubernetes.io/ingress.class': IngressType.NGINX_INGRESS,
             'nginx.ingress.kubernetes.io/rewrite-target': '/',
           },
         },
