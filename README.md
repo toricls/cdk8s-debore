@@ -111,13 +111,27 @@ spec:
 
 [cdk8s](https://cdk8s.io) supports TypeScript and Python at this point, so as cdk8s-debore.
 
+We'd recommend to walk through the [cdk8s Getting Started guide](https://cdk8s.io/getting-started/) before using this library, if you're very new to cdk8s world.
+
 ### TypeScript
 
-TODO
+Use `npm` or `yarn` to install.
+
+```shell
+$ npm install -s cdk8s-debore
+```
+
+or
+
+```shell
+$ yarn add cdk8s-debore
+```
 
 ### Python
 
-TODO
+```shell
+$ pip install cdk8s-debore
+```
 
 ## Contribution
 
