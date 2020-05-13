@@ -8,13 +8,16 @@ Run your apps on Kubernetes cluster without bored YAMLing, powered by the [cdk8s
 
 ```typescript
 new DeboredApp(this, 'webapp', {
-   image: 'your-image:latest',
-   autoScale: true,
-   ingress: true
+  image: 'your-image:latest',
+  autoScale: true,
+  ingress: true
 });
 ```
 
 Then the Kubernetes manifests created by `cdk8s synth` command will have Kubernetes resources such as `Deployment`, `Service`, `HorizontalPodAutoscaler`, `Ingress`, as follows.
+
+<details>
+<summary>manifest.k8s.yaml</summary>
 
 ```yaml
 apiVersion: apps/v1
@@ -102,6 +105,8 @@ spec:
             path: /my-app-webapp-deployment-deployment-d67b425c
 ```
 
+</details>
+
 ## Installation
 
 [cdk8s](https://cdk8s.io) supports TypeScript and Python at this point, so as cdk8s-debore.
@@ -142,7 +147,7 @@ TODO
 
 ## Licence
 
-[Apache License, Version 2.0](LICENSE)
+[Apache License, Version 2.0](./LICENSE)
 
 ## Author
 
