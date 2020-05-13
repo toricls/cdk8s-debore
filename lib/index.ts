@@ -1,15 +1,15 @@
 import { Construct, Node } from 'constructs';
 import * as k8s from '../imports/k8s';
 
-export interface WebAppOptions {
+export interface DeboredOptions {
   /**
-   * The Kubernetes namespace where this web app deployed.
+   * The Kubernetes namespace where this app to be deployed.
    * @default 'default'
    */
   readonly namespace?: string;
   
   /**
-   * The Docker image to use for this web app.
+   * The Docker image to use for this app.
    * @default 'busybox'
    */
   readonly image?: string;
@@ -44,7 +44,7 @@ export interface WebAppOptions {
 
   /**
    * Resources requests for the web app.
-   * @default Requests = { CPU = 200, Mem = 256Mi }, Limits = { CPU = 400, Mem = 512Mi }
+   * @default Requests = { CPU = 200m, Mem = 256Mi }, Limits = { CPU = 400m, Mem = 512Mi }
    */
   readonly resources?: ResourceRequirements;
 }
@@ -52,13 +52,13 @@ export interface WebAppOptions {
 export interface ResourceRequirements {
   /**
    * Maximum resources for the web app.
-   * @default CPU = 400, Mem = 512Mi
+   * @default CPU = 400m, Mem = 512Mi
    */
   readonly limits: ResourceQuantity;
 
   /**
    * Required resources for the web app.
-   * @default CPU = 200, Mem = 256Mi
+   * @default CPU = 200m, Mem = 256Mi
    */
   readonly requests: ResourceQuantity;
 }
@@ -69,14 +69,14 @@ export interface ResourceQuantity {
 }
 
 /**
- * WebApp class.
+ * DeboredApp class.
  */
-export class WebApp extends Construct {
-  constructor(scope: Construct, name: string, opts: WebAppOptions) {
+export class DeboredApp extends Construct {
+  constructor(scope: Construct, name: string, opts: DeboredOptions) {
     super(scope, name);
 
     const selector = { app: Node.of(this).uniqueId };
-    const deployment = new WebAppDeployment(this, 'deployment', selector, opts);
+    const deployment = new DeboredDeployment(this, 'deployment', selector, opts);
     new Exposable(this, {
       deployment: deployment,
       port: opts.port || 80,
@@ -86,7 +86,7 @@ export class WebApp extends Construct {
   }
 }
 
-class WebAppDeployment extends Construct {
+class DeboredDeployment extends Construct {
   private name: string;
   private namespace: string;
   private containerPort: number;
@@ -186,7 +186,7 @@ class WebAppDeployment extends Construct {
 }
 
 interface ExposableOptions {
-  readonly deployment: WebAppDeployment,
+  readonly deployment: DeboredDeployment,
   readonly port: number,
   readonly selector: { [key: string]: string }
   readonly useIngress: boolean

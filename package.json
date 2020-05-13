@@ -1,12 +1,12 @@
 {
-  "name": "cdk8s-simple-webapp",
+  "name": "cdk8s-debore",
   "version": "0.0.1",
-  "description": "A library for describing simple webapps on Kubernetes",
+  "description": "A cdk8s library for running your apps on Kubernetes cluster without bored YAMLing",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/toricls/cdk8s-simple-webapp.git"
+    "url": "https://github.com/toricls/cdk8s-debore.git"
   },
   "author": "Tori <yshr@amazon.com>",
   "license": "Apache-2.0",
@@ -36,19 +36,19 @@
     "versionFormat": "full",
     "targets": {
       "java": {
-        "package": "com.github.toricls.cdk8ssimplewebapp",
+        "package": "com.github.toricls.cdk8sdebore",
         "maven": {
           "groupId": "com.github.toricls",
-          "artifactId": "cdk8s-simple-webapp"
+          "artifactId": "cdk8s-debore"
         }
       },
       "python": {
-        "distName": "cdk8s-simple-webapp",
-        "module": "cdk8s_simple_webapp"
+        "distName": "cdk8s-debore",
+        "module": "cdk8s_debore"
       },
       "dotnet": {
-        "namespace": "Toricls.Cdk8sSimpleWebapp",
-        "packageId": "Tori.Cdk8sSimpleWebapp"
+        "namespace": "Toricls.Cdk8sDebore",
+        "packageId": "Tori.Cdk8sDebore"
       }
     }
   }
