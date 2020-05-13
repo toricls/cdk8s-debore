@@ -18,7 +18,7 @@ export interface DeboredOptions {
    * Number of replicas.
    * @default 1
    */
-  readonly defaultReplicas?: number;
+  readonly replicas?: number;
   
   /**
    * External port.
@@ -34,17 +34,19 @@ export interface DeboredOptions {
 
   /**
    * Whether use HPA or not.
+   * @default false
    */
   readonly autoScale?: boolean;
 
   /**
    * Whether use Nginx ingress or not.
+   * @default false
    */
   readonly ingress?: boolean;
 
   /**
    * Resources requests for the web app.
-   * @default Requests = { CPU = 200m, Mem = 256Mi }, Limits = { CPU = 400m, Mem = 512Mi }
+   * @default - Requests = { CPU = 200m, Mem = 256Mi }, Limits = { CPU = 400m, Mem = 512Mi }
    */
   readonly resources?: ResourceRequirements;
 }
@@ -52,20 +54,27 @@ export interface DeboredOptions {
 export interface ResourceRequirements {
   /**
    * Maximum resources for the web app.
-   * @default CPU = 400m, Mem = 512Mi
+   * @default - CPU = 400m, Mem = 512Mi
    */
-  readonly limits: ResourceQuantity;
+  readonly limits?: ResourceQuantity;
 
   /**
    * Required resources for the web app.
-   * @default CPU = 200m, Mem = 256Mi
+   * @default - CPU = 200m, Mem = 256Mi
    */
-  readonly requests: ResourceQuantity;
+  readonly requests?: ResourceQuantity;
 }
 
 export interface ResourceQuantity {
-  readonly cpu: k8s.Quantity;
-  readonly memory: k8s.Quantity;
+  /**
+   * @default - no limit
+   */
+  readonly cpu?: string;
+
+  /**
+   * @default - no limit
+   */
+  readonly memory?: string;
 }
 
 /**
@@ -77,36 +86,40 @@ export class DeboredApp extends Construct {
 
     const selector = { app: Node.of(this).uniqueId };
     const deployment = new DeboredDeployment(this, 'deployment', selector, opts);
-    new Exposable(this, {
+    
+    new Exposable(this, 'exposable', {
       deployment: deployment,
-      port: opts.port || 80,
+      port: opts.port ?? 80,
       selector: selector,
-      useIngress: opts.ingress || false
-    })
+      useIngress: opts.ingress ?? false,
+    });
   }
 }
 
 class DeboredDeployment extends Construct {
-  private name: string;
-  private namespace: string;
-  private containerPort: number;
+  public readonly name: string;
+  public readonly namespace: string;
+  public readonly containerPort: number;
 
-  constructor(scope: Construct, name: string, selector: { [key: string]: string }, opts: WebAppOptions) {
+  constructor(scope: Construct, name: string, selector: { [key: string]: string }, opts: DeboredOptions) {
     super(scope, name);
 
-    const scalable = opts.autoScale || false;
-    const defaultReplicas = opts.defaultReplicas || 1;
+    const scalable = opts.autoScale ?? false;
+    const defaultReplicas = opts.replicas ?? 1;
     const replicas = scalable ? undefined : defaultReplicas;
-    const imageName = opts.image || 'busybox';
-    const containerPort = opts.containerPort || 8080;
+    const imageName = opts.image ?? 'busybox';
+    const containerPort = opts.containerPort ?? 8080;
     this.containerPort = containerPort;
-    const namespace = opts.namespace || 'default';
+    const namespace = opts.namespace ?? 'default';
     this.namespace = namespace;
-    const resources = opts.resources || { limits: { cpu: '400m', memory: '512Mi' }, requests: { cpu: '200m', memory: '256Mi' }}
+    const resources = {
+      limits: convertQuantity(opts.resources?.limits, { cpu: '400m', memory: '512Mi' }),
+      requests: convertQuantity(opts.resources?.requests, { cpu: '200m', memory: '256Mi' }),
+    };
 
-    const deploymentOpts = {
+    const deploymentOpts: k8s.DeploymentOptions = {
       metadata: {
-        namespace: namespace
+        namespace: namespace,
       },
       spec: {
         replicas: replicas,
@@ -119,14 +132,11 @@ class DeboredDeployment extends Construct {
               image: imageName,
               imagePullPolicy: 'Always',
               ports: [ { containerPort } ],
-              resources: {
-                limits: { cpu: resources.limits.cpu, memory: resources.limits.memory },
-                requests: { cpu: resources.requests.cpu, memory: resources.requests.memory }
-              }
-            }]
-          }
-        }
-      }
+              resources: resources,
+            }],
+          },
+        },
+      },
     };
     
     const deployment = new k8s.Deployment(this, 'deployment', deploymentOpts);
@@ -135,13 +145,13 @@ class DeboredDeployment extends Construct {
     if (scalable) { 
       new k8s.HorizontalPodAutoscaler(this, 'hpa', {
         metadata: {
-          namespace: namespace
+          namespace: namespace,
         },
         spec: {
           scaleTargetRef: {
             apiVersion: deployment.apiVersion,
             kind: deployment.kind,
-            name: deployment.name
+            name: deployment.name,
           },
           minReplicas: defaultReplicas,
           maxReplicas: defaultReplicas * 10,
@@ -152,9 +162,9 @@ class DeboredDeployment extends Construct {
                 name: 'cpu',
                 target: {
                   type: 'Utilization',
-                  averageUtilization: 85
-                }
-              }
+                  averageUtilization: 85,
+                },
+              },
             },
             {
               type: 'Resource',
@@ -162,26 +172,14 @@ class DeboredDeployment extends Construct {
                 name: 'memory',
                 target: {
                   type: 'Utilization',
-                  averageUtilization: 75
-                }
-              }
-            }
-          ]
-        }
+                  averageUtilization: 75,
+                },
+              },
+            },
+          ],
+        },
       })
     }
-  }
-
-  public getName(): string {
-    return this.name;
-  }
-
-  public getNamespace(): string {
-    return this.namespace;
-  }
-
-  public getContainerPort(): number {
-    return this.containerPort;
   }
 }
 
@@ -193,27 +191,27 @@ interface ExposableOptions {
 }
 
 class Exposable extends Construct {
-  constructor(scope: Construct, opts: ExposableOptions) {
-    super(scope, 'exposable');
+  constructor(scope: Construct, name: string, opts: ExposableOptions) {
+    super(scope, name);
 
     const svc = new k8s.Service(this, 'service', {
       metadata: {
-        namespace: opts.deployment.getNamespace()
+        namespace: opts.deployment.namespace,
       },
       spec: {
         type: opts.useIngress ? 'ClusterIP' : 'LoadBalancer',
-        ports: [ { port: opts.port, targetPort: k8s.IntOrString.fromNumber(opts.deployment.getContainerPort()) } ],
-        selector: opts.selector
-      }
+        ports: [ { port: opts.port, targetPort: k8s.IntOrString.fromNumber(opts.deployment.containerPort) } ],
+        selector: opts.selector,
+      },
     });
     if (opts.useIngress) {
       new k8s.Ingress(this, 'ingress', {
         metadata: {
-          namespace: opts.deployment.getNamespace(),
+          namespace: opts.deployment.namespace,
           annotations: {
             'kubernetes.io/ingress.class': 'nginx',
-            'nginx.ingress.kubernetes.io/rewrite-target': '/'
-          }
+            'nginx.ingress.kubernetes.io/rewrite-target': '/',
+          },
         },
         spec: {
           rules: [{
@@ -221,14 +219,47 @@ class Exposable extends Construct {
               paths: [{
                 backend: {
                   serviceName: svc.name,
-                  servicePort: opts.port
+                  servicePort: opts.port,
                 },
-                path: '/' + opts.deployment.getName()
-              }]
-            }
-          }]
-        }
+                path: '/' + opts.deployment.name,
+              }],
+            },
+          }],
+        },
       });
     }
   }
 }
+
+/**
+ * Converts a `ResourceQuantity` type to a k8s.Quantity map.
+ *
+ * If `user` is defined, the values provided there (or lack thereof) will be
+ * passed on. This means that if the user, for example, did not specify a value
+ * for `cpu`, this value will be omitted from the resource requirements. This is
+ * intentional, in case the user intentionally wants to omit a constraint.
+ * 
+ * If `user` is not defined, `defaults` are used.
+ */
+function convertQuantity(user: ResourceQuantity | undefined, defaults: { cpu: string, memory: string }): { [key: string]: k8s.Quantity } {
+
+  // defaults
+  if (!user) {
+    return {
+      cpu: k8s.Quantity.fromString(defaults.cpu),
+      memory: k8s.Quantity.fromString(defaults.memory),
+    }
+  }
+
+  const result: { [key: string]: k8s.Quantity } = { };
+  
+  if (user.cpu) {
+    result.cpu = k8s.Quantity.fromString(user.cpu);
+  }
+
+  if (user.memory) {
+    result.memory = k8s.Quantity.fromString(user.memory);
+  }
+
+  return result;
+};
