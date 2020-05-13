@@ -8,13 +8,16 @@ Run your apps on Kubernetes cluster without bored YAMLing, powered by the [cdk8s
 
 ```typescript
 new DeboredApp(this, 'webapp', {
-   image: 'your-image:latest',
-   autoScale: true,
-   ingress: true
+  image: 'your-image:latest',
+  autoScale: true,
+  ingress: true
 });
 ```
 
 Then the Kubernetes manifests created by `cdk8s synth` command will have Kubernetes resources such as `Deployment`, `Service`, `HorizontalPodAutoscaler`, `Ingress`, as follows.
+
+<details>
+<summary>manifest.k8s.yaml</summary>
 
 ```yaml
 apiVersion: apps/v1
@@ -102,6 +105,8 @@ spec:
             path: /my-app-webapp-deployment-deployment-d67b425c
 ```
 
+</details>
+
 ## Installation
 
 [cdk8s](https://cdk8s.io) supports TypeScript and Python at this point, so as cdk8s-debore.
@@ -117,14 +122,33 @@ TODO
 ## Contribution
 
 1. Fork ([https://github.com/toricls/cdk8s-debore/fork](https://github.com/toricls/cdk8s-debore/fork))
-1. Create a feature branch
-1. Commit your changes
-1. Rebase your local changes against the master branch
-1. Create a new Pull Request
+2. Bootstrap the repo:
+  
+    ```bash
+    npx projen   # generates package.json and friends
+    yarn install # installs dependencies
+    ```
+3. Development scripts:
+   |Command|Description
+   |-|-
+   |`yarn compile`|Compiles typescript => javascript
+   |`yarn watch`|Watch & compile
+   |`yarn test`|Run unit test & linter through jest
+   |`yarn test -u`|Update jest snapshots
+   |`yarn run package`|Creates a `dist` with packages for all languages.
+   |`yarn build`|Compile + test + package
+   |`yarn bump`|Bump version (with changelog) based on [conventional commits]
+   |`yarn release`|Bump + push to `master`
+4. Create a feature branch
+5. Commit your changes
+6. Rebase your local changes against the master branch
+7. Create a new Pull Request (use [conventional commits] for the title please)
+
+[conventional commits]: https://www.conventionalcommits.org/en/v1.0.0/
 
 ## Licence
 
-[Apache License, Version 2.0](LICENSE)
+[Apache License, Version 2.0](./LICENSE)
 
 ## Author
 

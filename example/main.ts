@@ -2,33 +2,25 @@ import { Construct } from 'constructs';
 import { App, Chart } from 'cdk8s';
 import { DeboredApp } from '../lib/index';
 
-class MyWebApp extends Chart {
-    constructor(scope: Construct, name: string) {
-        super(scope, name);
+class MyChart extends Chart {
+  constructor(scope: Construct, name: string) {
+    super(scope, name);
 
-        const opts = {
-            namespace: 'default',
-            image: 'nginx',
-            defaultReplicas: 2,
-            port: 80,
-            containerPort: 80,
-            autoScale: true
-        };
-
-        new DeboredApp(this, 'webapp', opts);
-
-        /* 
-        // The `opts` above is using full option and a minimal option could be something like this :)
-        const minimalOpts = {
-            image: 'nginx'
-        }
-        */
-    }
+    new DeboredApp(this, 'minimal', {
+      image: 'nginx',
+    });
+  
+    new DeboredApp(this, 'with-options', {
+      namespace: 'default',
+      image: 'nginx',
+      defaultReplicas: 2,
+      port: 80,
+      containerPort: 80,
+      autoScale: true,
+    });
+  }
 }
 
 const app = new App();
-new MyWebApp(
-    app,
-    'my-app'
-);
+new MyChart(app, 'my-chart');
 app.synth();

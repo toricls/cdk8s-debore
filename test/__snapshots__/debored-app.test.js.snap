@@ -1,0 +1,428 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`"autoScale" will define pod autoscaling with sensible configuration 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "autoscaling/v2beta2",
+    "kind": "HorizontalPodAutoscaler",
+    "metadata": Object {
+      "name": "test-myapp-deployment-hpa-a67148ea",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "maxReplicas": 10,
+      "metrics": Array [
+        Object {
+          "resource": Object {
+            "name": "cpu",
+            "target": Object {
+              "averageUtilization": 85,
+              "type": "Utilization",
+            },
+          },
+          "type": "Resource",
+        },
+        Object {
+          "resource": Object {
+            "name": "memory",
+            "target": Object {
+              "averageUtilization": 75,
+              "type": "Utilization",
+            },
+          },
+          "type": "Resource",
+        },
+      ],
+      "minReplicas": 1,
+      "scaleTargetRef": Object {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "test-myapp-deployment-deployment-c1cb76c8",
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "LoadBalancer",
+    },
+  },
+]
+`;
+
+exports[`"ingress" installs an nginx-based ingress controller 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "replicas": 1,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "ClusterIP",
+    },
+  },
+  Object {
+    "apiVersion": "networking.k8s.io/v1beta1",
+    "kind": "Ingress",
+    "metadata": Object {
+      "annotations": Object {
+        "kubernetes.io/ingress.class": "nginx",
+        "nginx.ingress.kubernetes.io/rewrite-target": "/",
+      },
+      "name": "test-myapp-exposable-ingress-3f9c21c2",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "rules": Array [
+        Object {
+          "http": Object {
+            "paths": Array [
+              Object {
+                "backend": Object {
+                  "serviceName": "test-myapp-exposable-service-568386d8",
+                  "servicePort": 80,
+                },
+                "path": "/test-myapp-deployment-deployment-c1cb76c8",
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`"namespace" controls the k8s namespace to use" 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "hello.namespace",
+    },
+    "spec": Object {
+      "replicas": 1,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "hello.namespace",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "LoadBalancer",
+    },
+  },
+]
+`;
+
+exports[`"replicas" can be used to control the number of replicas 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "replicas": 10,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "LoadBalancer",
+    },
+  },
+]
+`;
+
+exports[`minimal configuration 1`] = `
+Array [
+  Object {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": Object {
+      "name": "test-myapp-deployment-deployment-c1cb76c8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "replicas": 1,
+      "selector": Object {
+        "matchLabels": Object {
+          "app": "testmyappD19744AC",
+        },
+      },
+      "template": Object {
+        "metadata": Object {
+          "labels": Object {
+            "app": "testmyappD19744AC",
+          },
+        },
+        "spec": Object {
+          "containers": Array [
+            Object {
+              "image": "myimage",
+              "imagePullPolicy": "Always",
+              "name": "app",
+              "ports": Array [
+                Object {
+                  "containerPort": 8080,
+                },
+              ],
+              "resources": Object {
+                "limits": Object {
+                  "cpu": "400m",
+                  "memory": "512Mi",
+                },
+                "requests": Object {
+                  "cpu": "200m",
+                  "memory": "256Mi",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  Object {
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": Object {
+      "name": "test-myapp-exposable-service-568386d8",
+      "namespace": "default",
+    },
+    "spec": Object {
+      "ports": Array [
+        Object {
+          "port": 80,
+          "targetPort": 8080,
+        },
+      ],
+      "selector": Object {
+        "app": "testmyappD19744AC",
+      },
+      "type": "LoadBalancer",
+    },
+  },
+]
+`;
