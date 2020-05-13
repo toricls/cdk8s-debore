@@ -16,9 +16,14 @@ export interface DeboredOptions {
 
   /**
    * Number of replicas.
+   *
+   * If `autoScale` is enabled, this will be used for `minReplicas` (while
+   * `maxReplicas` is x10). Otherwise, this value will be used to specify the
+   * exact number of replicas in the deployment.
+   *
    * @default 1
    */
-  readonly replicas?: number;
+  readonly defaultReplicas?: number;
   
   /**
    * External port.
@@ -105,7 +110,7 @@ class DeboredDeployment extends Construct {
     super(scope, name);
 
     const scalable = opts.autoScale ?? false;
-    const defaultReplicas = opts.replicas ?? 1;
+    const defaultReplicas = opts.defaultReplicas ?? 1;
     const replicas = scalable ? undefined : defaultReplicas;
     const imageName = opts.image ?? 'busybox';
     const containerPort = opts.containerPort ?? 8080;

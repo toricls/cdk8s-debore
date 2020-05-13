@@ -13,7 +13,7 @@ class MyChart extends Chart {
     new DeboredApp(this, 'with-options', {
       namespace: 'default',
       image: 'nginx',
-      replicas: 2,
+      defaultReplicas: 2,
       port: 80,
       containerPort: 80,
       autoScale: true,

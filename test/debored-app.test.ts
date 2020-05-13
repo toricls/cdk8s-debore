@@ -53,7 +53,7 @@ test('"replicas" can be used to control the number of replicas', () => {
   // WHEN
   new DeboredApp(chart, 'myapp', {
     image: 'myimage',
-    replicas: 10,
+    defaultReplicas: 10,
   });
 
   // THEN
