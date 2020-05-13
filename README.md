@@ -1,31 +1,131 @@
-# jsii-library-template
+# cdk8s-debore
 
-Template for a jsii library project.
+Run your apps on Kubernetes cluster without bored YAMLing, powered by the [cdk8s project](https://cdk8s.io) 🚀
 
-## Configuration
+## Overview
 
-1. Edit `package.json` and go through all the fields to update for your project.
-2. Add the following GitHub secrets to your project (see [jsii-release](https://github.com/eladb/jsii-release) for instructions):
-   - `NPM_TOKEN`
-   - `MAVEN_USERNAME`, `MAVEN_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PRIVATE_KEY_PASSPHRASE`, `MAVEN_STAGING_PROFILE_ID`, 
-   - `TWINE_USERNAME`, `TWINE_PASSWORD`
-   - `NUGET_API_KEY`
+**cdk8s-debore** is a [cdk8s](https://cdk8s.io) library which allows you to define your Kubernetes app with just few lines of code.
 
+```typescript
+new DeboredApp(this, 'webapp', {
+   image: 'your-image:latest',
+   autoScale: true,
+   ingress: true
+});
+```
 
-## Usage
+Then the Kubernetes manifests created by `cdk8s synth` command will have Kubernetes resources such as `Deployment`, `Service`, `HorizontalPodAutoscaler`, `Ingress`, as follows.
 
-| Command          | Description                                       |
-|------------------|---------------------------------------------------|
-|`yarn install`    |Install dependencies                               |
-|`yarn compile`    |Compile to JavaScript                              |
-|`yarn watch`      |Watch for changes and compile                      |
-|`yarn test`       |Run tests                                          |
-|`yarn run package`|Create `dist` with bundles for all languages       |
-|`yarn build`      |Compile + test + package                           |
-|`yarn bump`       |Bump a new version (based on conventional commits) |
-|`yarn compat`     |Run API compatibility check against latest         |
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-webapp-deployment-deployment-d67b425c
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: myappwebapp4BD95A2A
+  template:
+    metadata:
+      labels:
+        app: myappwebapp4BD95A2A
+    spec:
+      containers:
+        - image: your-image:latest
+          imagePullPolicy: Always
+          name: app
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 400m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-webapp-deployment-hpa-bd8107fd
+  namespace: default
+spec:
+  maxReplicas: 10
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 85
+          type: Utilization
+      type: Resource
+    - resource:
+        name: memory
+        target:
+          averageUtilization: 75
+          type: Utilization
+      type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app-webapp-deployment-deployment-d67b425c
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-webapp-exposable-service-d6a35671
+  namespace: default
+spec:
+  ports:
+    - port: 8080
+      targetPort: 80
+  selector:
+    app: myappwebapp4BD95A2A
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: my-app-webapp-exposable-ingress-c350957f
+  namespace: default
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: my-app-webapp-exposable-service-d6a35671
+              servicePort: 80
+            path: /my-app-webapp-deployment-deployment-d67b425c
+```
 
-## GitHub Workflows
+## Installation
 
-- [Build](./.github/workflows/build.yml): when a PR is created/updated, runs `yarn build`
-- [Release](./.github/workflows/release.yml): `yarn build` and publish to all package managers for every commit to `master` (ignore if current version is already released).
+[cdk8s](https://cdk8s.io) supports TypeScript and Python at this point, so as cdk8s-debore.
+
+### TypeScript
+
+TODO
+
+### Python
+
+TODO
+
+## Contribution
+
+1. Fork ([https://github.com/toricls/cdk8s-debore/fork](https://github.com/toricls/cdk8s-debore/fork))
+1. Create a feature branch
+1. Commit your changes
+1. Rebase your local changes against the master branch
+1. Create a new Pull Request
+
+## Licence
+
+[Apache License, Version 2.0](LICENSE)
+
+## Author
+
+[Tori](https://github.com/toricls)
