@@ -55,11 +55,19 @@ export interface DeboredOptions {
   readonly resources?: ResourceRequirements;
 }
 
-// TODO: Need different approach if we support multiple ingress controllers in the future
 export enum IngressType {
-  SERVICE_LOADBALANCER = 'LoadBalancer',
-  CLUSTER_IP = 'ClusterIP',
-  NGINX_INGRESS = 'nginx'
+  SERVICE_LOADBALANCER,
+  CLUSTER_IP,
+  NGINX_INGRESS
+}
+
+function serviceTypeFromIngressType(ingressType: IngressType): string {
+  switch (ingressType) {
+    case IngressType.SERVICE_LOADBALANCER: return 'LoadBalancer';
+    case IngressType.CLUSTER_IP: return 'ClusterIP';
+    case IngressType.NGINX_INGRESS: return 'ClusterIP';
+    default: throw new Error('unsupported ingress type');
+  }
 }
 
 export interface ResourceRequirements {
@@ -205,23 +213,23 @@ class Exposable extends Construct {
   constructor(scope: Construct, name: string, opts: ExposableOptions) {
     super(scope, name);
 
-    const useNginx = opts.ingressType == IngressType.NGINX_INGRESS;
     const svc = new k8s.Service(this, 'service', {
       metadata: {
         namespace: opts.deployment.namespace,
       },
       spec: {
-        type: useNginx ? 'ClusterIP' : opts.ingressType,
+        type: serviceTypeFromIngressType(opts.ingressType),
         ports: [ { port: opts.port, targetPort: k8s.IntOrString.fromNumber(opts.deployment.containerPort) } ],
         selector: opts.selector,
       },
     });
-    if (useNginx) {
+    // Add a Kubernetes Ingress resource if it's needed
+    if (opts.ingressType == IngressType.NGINX_INGRESS) {
       new k8s.Ingress(this, 'ingress', {
         metadata: {
           namespace: opts.deployment.namespace,
           annotations: {
-            'kubernetes.io/ingress.class': IngressType.NGINX_INGRESS,
+            'kubernetes.io/ingress.class': 'nginx',
             'nginx.ingress.kubernetes.io/rewrite-target': '/',
           },
         },
