@@ -10,9 +10,8 @@ export interface DeboredOptions {
   
   /**
    * The Docker image to use for this app.
-   * @default 'busybox'
    */
-  readonly image?: string;
+  readonly image: string;
 
   /**
    * Number of replicas.
@@ -112,7 +111,7 @@ class DeboredDeployment extends Construct {
     const scalable = opts.autoScale ?? false;
     const defaultReplicas = opts.defaultReplicas ?? 1;
     const replicas = scalable ? undefined : defaultReplicas;
-    const imageName = opts.image ?? 'busybox';
+    const imageName = opts.image;
     const containerPort = opts.containerPort ?? 8080;
     this.containerPort = containerPort;
     const namespace = opts.namespace ?? 'default';
