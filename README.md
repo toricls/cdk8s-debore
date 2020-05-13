@@ -134,6 +134,7 @@ TODO
    |`yarn compile`|Compiles typescript => javascript
    |`yarn watch`|Watch & compile
    |`yarn test`|Run unit test & linter through jest
+   |`yarn test -u`|Update jest snapshots
    |`yarn run package`|Creates a `dist` with packages for all languages.
    |`yarn build`|Compile + test + package
    |`yarn bump`|Bump version (with changelog) based on [conventional commits]
