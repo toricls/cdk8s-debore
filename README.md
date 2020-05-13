@@ -117,10 +117,28 @@ TODO
 ## Contribution
 
 1. Fork ([https://github.com/toricls/cdk8s-debore/fork](https://github.com/toricls/cdk8s-debore/fork))
-1. Create a feature branch
-1. Commit your changes
-1. Rebase your local changes against the master branch
-1. Create a new Pull Request
+2. Bootstrap the repo:
+  
+    ```bash
+    npx projen   # generates package.json and friends
+    yarn install # installs dependencies
+    ```
+3. Development scripts:
+   |Command|Description
+   |-|-
+   |`yarn compile`|Compiles typescript => javascript
+   |`yarn watch`|Watch & compile
+   |`yarn test`|Run unit test & linter through jest
+   |`yarn run package`|Creates a `dist` with packages for all languages.
+   |`yarn build`|Compile + test + package
+   |`yarn bump`|Bump version (with changelog) based on [conventional commits]
+   |`yarn release`|Bump + push to `master`
+4. Create a feature branch
+5. Commit your changes
+6. Rebase your local changes against the master branch
+7. Create a new Pull Request (use [conventional commits] for the title please)
+
+[conventional commits]: https://www.conventionalcommits.org/en/v1.0.0/
 
 ## Licence
 
