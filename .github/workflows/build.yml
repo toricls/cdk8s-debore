@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: jsii/superchain
+      image: jsii/superchain:1-buster-slim
     steps:
       - uses: actions/checkout@v2
       - run: npx projen@0.1.14
